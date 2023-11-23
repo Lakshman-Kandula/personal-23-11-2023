@@ -1,0 +1,453 @@
+//securityConfig
+
+package com.config;
+
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.jwt.TokenFilter;
+import com.service.UserDetailsServiceImpl;
+
+
+
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig { 
+    
+    @Autowired private TokenFilter filter;
+    @Autowired private UserDetailsServiceImpl uds;
+	
+	
+	@Bean
+  public SecurityFilterChain doFilter(HttpSecurity http) throws Exception {
+    http
+    .authorizeHttpRequests()
+    .antMatchers("/app/**").permitAll()
+    .antMatchers("/myapp/**").authenticated()
+        .and()
+    .formLogin()
+        .and()
+    .csrf().disable()
+    .userDetailsService(uds)
+    .exceptionHandling()
+        .authenticationEntryPoint(
+            (request, response, authException) ->
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage())
+        )    
+     .and()
+     .sessionManagement()
+     .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    
+     http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  } 
+  
+     @Bean
+     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception{ 
+        return authConfig.getAuthenticationManager();
+     }
+    
+     @Bean
+     public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+  }
+}
+
+
+
+
+//AuthController
+
+package com.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.request.LoginRequest;
+import com.jwt.JwtUtility;
+import com.repository.UserRepository;
+import com.response.JSONResponse;
+import com.service.UserDetailsServiceImpl;
+
+
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RestController
+@RequestMapping("/app")
+public class AuthController {
+    
+	@Autowired
+    private JwtUtility jwtTokenUtil;
+	
+	@Autowired
+    private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private UserDetailsServiceImpl userDetailsServiceImpl;
+    
+    @Autowired
+    UserRepository repository;
+	
+	@PostMapping("/signin")
+	public ResponseEntity<?> validateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(loginRequest.getUsername());  
+            
+            String token = jwtTokenUtil.generateToken(authentication);
+            List<String> roles = new ArrayList<>();
+            for(GrantedAuthority authority: userDetails.getAuthorities()) {
+                roles.add(String.valueOf(authority));
+            }
+		    JSONResponse jsonResponse = new JSONResponse(token,userDetails.getUsername(),roles);
+        
+            return ResponseEntity.ok(jsonResponse);
+         }catch (Exception authExc){
+            throw new RuntimeException(authExc.getMessage());
+         }
+        
+	}
+}
+
+
+//BusController
+
+package com.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.model.Bus;
+import com.service.BusService;
+
+
+@CrossOrigin(origins = "*", maxAge = 3600)
+@RestController
+@RequestMapping("/ticketbookingapp")
+public class BusController {
+
+	@Autowired
+	private BusService service;
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/update/{busNo}/{noOfSeatsAvailable}")
+	public Bus updateBus(@PathVariable int busNo, @PathVariable int noOfSeatsAvailable) {
+		return service.updateBus(busNo, noOfSeatsAvailable);
+	}
+	
+	@PreAuthorize("hasAnyRole('USER','MANAGER','ADMIN')")
+	@GetMapping("/viewBusBySourceAndDestination/{source}/{destination}")
+	public Bus viewBusBySourceAndDestination(@PathVariable String source,@PathVariable String destination){
+		return service.viewBusBySourceAndDestination(source,destination);
+	}
+	
+	@PreAuthorize("hasRole('MANAGER')")
+	@GetMapping("/viewAllBusRating")
+	public List<Bus> viewAllBusRating(){
+		return service.viewAllBusRating();
+	}
+	
+	@PreAuthorize("hasRole('USER')")
+	@PutMapping("/rating/{busNo}/{rating}")
+	public <List>Bus provideRating(@PathVariable int busNo, @PathVariable int rating){
+		return service.provideRating(busNo, rating);
+	}
+}
+
+
+//JwtUtility
+
+package com.jwt;
+
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+import com.service.UserDetailsImpl;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+@Component
+public class JwtUtility {
+	
+	@Value("${jwtSecret}")
+	private String jwtSecret;
+
+	@Value("${jwtExpirationMs}")
+	private int jwtExpirationMs;
+    
+    Logger logger = LoggerFactory.getLogger(JwtUtility.class);
+    
+	public String generateToken(Authentication authentication) {
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs); 
+        
+        return Jwts.builder()
+                .setSubject(userPrincipal.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+	            .signWith(SignatureAlgorithm.HS512, jwtSecret).compact();
+	}
+	
+	public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parser()
+            .setSigningKey(jwtSecret)
+            .parseClaimsJws(token)
+            .getBody();
+            
+        return claims.getSubject();
+    }
+    
+    public Boolean validateToken(String token) {
+     try {
+        getClaim(token);
+        return true;
+     } catch (Exception ex) {
+        return false;
+     }
+     
+  }
+  public Claims getClaim(String token) {
+     return (Claims) Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+     }
+    
+}
+
+
+//TokenFilter
+
+package com.jwt;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import com.service.UserDetailsServiceImpl;
+
+@Component
+public class TokenFilter extends OncePerRequestFilter {
+  @Autowired
+  private JwtUtility jwtUtils;
+
+  @Autowired
+  private UserDetailsServiceImpl userDetailsService;
+  Logger log = LoggerFactory.getLogger(TokenFilter.class);
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+          throws ServletException, IOException {
+     logger.debug("============== filter ===================");
+     String token = request.getHeader("Authorization");
+     if (token != null && token.startsWith("Bearer ")) {
+        token = token.substring(7);
+            if (!jwtUtils.validateToken(token)) {
+                logger.debug("================ valid token ======================");
+                String username = jwtUtils.getUsernameFromToken(token);
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetailsService.loadUserByUsername(username), null, userDetailsService.loadUserByUsername(username).getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }   
+         else {
+                log.debug("================ invalid token =================");
+             }
+        }
+        filterChain.doFilter(request, response);
+  }
+
+  
+}
+
+
+//UserRepository
+
+package com.repository;
+
+import java.util.Optional;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import com.model.Login;
+
+@Repository
+public interface UserRepository extends MongoRepository<Login, String>{
+    Login findByUsername(String username);
+}
+
+//UserDetailsImpl
+
+
+package com.service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.model.Login;
+
+public class UserDetailsImpl implements UserDetails {
+	private static final long serialVersionUID = 1L;
+
+	private String username;
+
+
+	private String password;
+
+	private Collection<? extends GrantedAuthority> authorities;
+
+	public UserDetailsImpl( String username,String password,Collection<? extends GrantedAuthority> authorities ) {
+
+		this.username = username;
+		this.password = password;
+		this.authorities = authorities;
+	}
+
+	public static UserDetailsImpl getUser(Login user) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+         authorities.add(new SimpleGrantedAuthority(user.getRole()));
+         
+        return new UserDetailsImpl(
+                user.getUsername(),
+		        user.getPassword(),
+		        authorities);
+		        
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return authorities;
+	}
+
+
+	@Override
+	public String getPassword() {
+		return password;
+	}
+
+	@Override
+	public String getUsername() {
+		return username;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+}
+
+
+//UserDetailsServiceImpl
+
+package com.service;
+
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.model.Login;
+import com.repository.UserRepository;
+
+@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+	
+	@Autowired
+	UserRepository userRepository;
+
+	@Override
+	@Transactional
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Login userOp = userRepository.findByUsername(username);
+        if (userOp == null){
+            throw new UsernameNotFoundException(
+                    "User Not Found with username: " + username);
+     }
+     else {
+        return getUser(username, userOp);
+        }
+	}
+    
+    private UserDetails getUser(String username, Login user) {
+    
+        return UserDetailsImpl.getUser(user);
+	}
+
+}
+

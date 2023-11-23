@@ -1,0 +1,119 @@
+web service application is developed by using certain standard rules.
+if web app follows SOAP protocol then it is called SOAP web services.
+if web app follows REST guidelines then it is calles REST web services.
+
+the file which contains all basic information about the specific web 
+service application is known as WSDL (Web Service Description Language)
+
+client and web service application or service provider communicate each 
+other by using SOAP format or SOAP protocol is called SOAP web service.
+
+SOAP Protocol says communication between two softwares should happen in XML format
+by following certain rules.SOAP web services and its client use other protocols instead of
+http like SMTP, FTP, JMS etc as per the requirement.
+
+client and web service application or service provider communicate each 
+other by using REST guidelines then it is called REST web service.
+
+REST - Representation State Transfer. It is basically a set of guidelines which describes
+the overall architecture of the application.
+
+In architecture of client and server the 
+
+Client requests for a resource to the server and server gives the response in the form of
+Representation of resource+additional info
+
+Representation of resource is nothing but copy of requested resource in any one of formats like xml,
+json, html, csv, pdf etc and it includes the neccessary links and uri which may be helpful to 
+the client.
+additional info consists of charactertistic of representation of resource like format, size etc.
+
+jackson-dataformat-xml beacuse of this spring is giving output in the form of xml else it will be in jason.
+
+@ResponseBody returns the java object but if jackson jars are there then java object will be converted into 
+json type.
+
+(com.fasterxml.jackson.annotation.JsonProperty;)
+
+@JsonProperty("Student_Name") - used for show the user defined field name.
+
+@JsonProperty("Student Name") :-
+This page contains the following errors:
+error on line 1 at column 47: Specification mandates value for attribute Name
+Below is a rendering of the page up to the first error.
+
+@JsonPropertyOrder({"regNo","name", "cgpa"}) - sets the order of the fields.
+@JsonIgnoreProperties({"cgpa"}) - it doesn't include the cgpa field.
+@JsonInclude(JsonInclude.Include.NON_NULL) - will exclude the null values.
+
+**Repeated annotations are allowed on 1.8 source and above.....
+
+@JsonInclude(JsonInclude.Include.NON_DEFAULT) - ignores default values
+
+// retrieves Single object from the database.....
+	@ResponseBody
+	@RequestMapping(value = "/students/{name}", method = RequestMethod.GET)
+	public student getStudent(@PathVariable("name") String name)
+	{
+		student stud = new student();
+		stud.setName(name);
+		stud.setCgpa(8.56);
+		return stud;	
+	}
+
+@RestController - improves the readability of the REST api or spring MVC project.
+whatever the mehods inside the restcontroller are basically related to rest api
+so for these methods we don't have to provide the @ResponseBody explicitly
+
+Sophsticated REST API testing tools are :
+1.SOAP UI
+2.RESTlet Client
+3.POSTMAN
+
+In POSTMAN testing tool we use headers in that key as Accept and value as application/json
+or application/xml is used to convert the response into json form xml form.
+
+The scenario where the clients can read the data which is available on the server then we 
+have to use Http GET request.
+The scenario where the clients need to update the information which kept at the server side
+then we go for PUT request.
+
+In order to request to be successful clients sents some info either in format of json or xml
+to the server.
+
+@RequestBody is responsible to convert json or xml into equivalent java object.
+
+ JSON:-
+
+{
+	"StudentName":"pradeep",
+	"cgpa":8.5
+}
+
+ XML:-
+
+<student>
+	<StudentName>Lakshman</StudentName>
+	<cgpa>8.6</cgpa>
+</student>
+
+If we want to restrict the Rest API controller method to support only XML format then
+we have to use the consumes argument in the @RequestMapping annotation.
+
+@RequestMapping(value = "/students/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_XML_VALUE)
+	public boolean method(@PathVariable("name") String name, @RequestBody student stud)
+	{
+		System.out.println("Student : "+name);
+		System.out.println("Student Name : "+stud.getName());
+		System.out.println("Student CGPA : "+stud.getCgpa());
+		return true;
+	} 
+If we change value as application/json on postman then spring will throw an error : org.springframework.http.converter.HttpMessageNotReadableException: Could not read document:
+
+
+c=1
+j=
+j=0
+287 - 3890
+116 - ?
+

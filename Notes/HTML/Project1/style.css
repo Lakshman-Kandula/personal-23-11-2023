@@ -1,0 +1,91 @@
+/* h1 {
+    color: brown;  
+}
+
+h2 {
+    color: aqua;
+} */
+
+html {
+    height: 100%;
+}
+
+body {
+    background-color: darkseagreen;
+    background-image: url(img/wp3104819.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+header {
+    /* background-color: blue; */
+    text-align: center;
+    height: 118px;
+    /* text-decoration: cornsilk; */
+    /* width: 1024px; */
+}
+
+nav {
+    background-color: rgba(0, 0, 0, 0.33);
+    height: 40px;
+    margin-bottom: 80px;
+    /* text-decoration: cornsilk; */
+    /* width: 1024px; */
+}
+
+main {
+    /* background-color: orange; */
+    height: 400px;
+    /* width: 1024px; */
+    text-align: center;
+    padding-top: 0px;
+    /* padding-left: 240px; */
+    /* padding-right: 240px; */
+}
+
+section {
+    padding-bottom: 100px;
+}
+
+footer {
+    background-color: rgba(0, 0, 0, 0.70);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    /* height: 100px; */
+    /* width: 1024px; */
+}
+
+.container {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 650px;
+}
+
+h1 {
+    font-size: 45px;
+    color: white;
+    font-family: cursive;
+}
+p {
+    font-size: 18px;
+    color: white;
+    font-family: cursive;
+}
+a {
+    color: white;
+    font-family: cursive;
+    /* text-decoration: none; */
+}
+nav a {
+    text-decoration: none;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+footer p {
+    font-size: 10px;
+    text-align: center;
+    color: aliceblue;
+}

@@ -1,0 +1,311 @@
+----------------------------html------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobi-Tech Solutions</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div id="top"> <!-- Add the appropriate bootstrap class -->
+        <h2 id="heading">Mobi-Tech Solutions</h2><!-- Add the appropriate bootstrap class -->
+        <div id = "socialMedia"><!-- Add the appropriate id to this div -->
+            <a href="#" class="fa fa-facebook"></a>
+            <a href="#" class="fa fa-twitter"></a>
+            <a href="#" class="fa fa-linkedin"></a>
+            <a href="#" class="fa fa-instagram"></a>
+        </div>
+    </div>
+    <!-- Fill your code for container block and results -->
+
+    <div id = "container">
+        
+    <div id = "header">
+        <h3 id = "subheading">Register for a Mobile Service</h3>
+    </div>
+    
+    <form id = "form1" onsubmit = "return ServiceRegistration()">
+        
+        <label for = "customerName">Customer Name</label>
+        <input id = "customerName" type = "text" placeholder="Enter Your Name" required><br>
+        
+        <label for = "contactNumber">Contact Number</label>
+        <input id = "contactNumber" type = "tel" placeholder="Enter Your Contact Number" required><br>
+        
+        <label for = "email">E-Mail ID</label>
+        <input id = "email" type = "email" placeholder="Enter Your E-Mail ID" required><br>
+        
+        <label for = "dateOfPurchase">Date of Purchase</label>
+        <input id = "dateOfPurchase" type = "date" required><br>
+        
+        <label for = "mobileBrand">Mobile Brand</label>
+        <input id = "mobileBrand" type = "text" list = "brandNames"><br>
+        <datalist id = "brandNames">
+            <option value = "Apple IPhone">
+            <option value = "Asus">
+            <option value = "Google Pixel">
+            <option value = "Samsung">
+            <option value = "Huawei">
+        </datalist>
+        
+        <div  class = "checkbox-inline">
+            <label for = "checkbox">Service(s) Required</label>
+            <input type = "checkbox" name = "services" id = "panel" value = "panel" checked>
+            <label for = "panel">Back Panel Replacement</label>
+            <input type = "checkbox" name = "services" id = "display" value = "display">
+            <label for = "display">Display Replacement</label>
+            <input type = "checkbox" name = "services" id = "battery" value = "battery">
+            <label for = "battery">Battery Replacement</label>
+            <input type = "checkbox" name = "services" id = "motherboard" value = "motherboard">
+            <label for = "motherboard">MotherBoard issues</label>
+        </div>
+        
+        <input id = "submit" type = "submit" value = "Register">
+        
+        </form>
+        </div>
+   
+    <div id = "result1">
+        
+    </div>
+    
+    <div id = "result2">
+        
+    </div>
+
+    <script src="script.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>
+
+
+
+------------------------------style-----------------------------
+
+body {
+    /*Fill your code here*/
+    background-color: #65659d;
+    color: #ffffff;
+    font-family: sans-serif;
+    font-size: 14px;
+    padding-bottom: 10px;
+    
+}
+h2{
+    /*Fill your code here*/
+    font-family: Tahoma;
+    font-weight: bold;
+    color: #65659d;
+    
+}
+
+ 
+.fa {
+    /*Fill your code here*/
+    padding: 10px;
+    width: 50px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-right: 2px;
+    margin-left: 2px;
+    font-size: 30px;
+    border-radius: 50%;
+    text-align: center;
+    text-decoration: none;
+    
+}
+
+.fa:hover {
+    opacity: 0.7;
+}
+
+.fa-facebook {
+    background-color: #3B5998;
+    color: white;
+}
+
+.fa-twitter {
+    background-color: #55ACEE;
+    color: white;
+}
+
+
+.fa-linkedin {
+    background-color: #007bb5;
+    color: white;
+}
+
+.fa-instagram {
+    background-color: #125688;
+    color: white;
+} 
+
+       
+
+
+--------------------------------script--------------------------
+
+
+function ServiceRegistration(){
+    // Fill your code here
+    
+    
+    
+    return false;
+}
+
+
+function isValidPurchaseDate(dateOfPurchase){
+    // Fill your code here
+    let date = new Date();
+    if(dateOfPurchase<=date)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    
+    
+}
+
+function isUnderWarrantyPeriod(dateOfPurchase){
+    var today = new Date();
+    dateOfPurchase=new Date(dateOfPurchase);
+    var timeDifference=today.getTime()-dateOfPurchase.getTime();
+    var daysDifference=timeDifference/(1000*3600*24);
+    // Fill your code here
+    if(daysDifference>=0 && daysDifference<=365)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    
+    
+}
+
+function calculateTotalAmount(){
+    // Fill your code here
+    let obj1 = document.querySelector("#panel");
+    let obj2 = document.querySelector("#display");
+    let obj3 = document.querySelector("#battery");
+    let obj4 = document.querySelector("#motherboard");
+    let sum1 = 0;
+    let sum2 = 0;
+    let sum3 = 0;
+    let sum4 = 0;
+    if(obj1.checked)
+    {
+        sum1 = 5;
+    }
+   if(obj2.checked)
+    {
+        sum2=40;
+    }
+    if(obj3.checked)
+    {
+        sum3=20;
+    }
+    if(obj4.checked)
+    {
+        sum4=50;
+    }
+    
+    return sum1+sum2+sum3+sum4;
+    
+}
+
+
+---------------------------------html------------------------
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobi-Tech Solutions</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div id="top" class = "jumbotron text-center"> <!-- Add the appropriate bootstrap class -->
+        <h2 id="heading" class = "text-uppercase">Mobi-Tech Solutions</h2><!-- Add the appropriate bootstrap class -->
+        <div id = "socialMedia"><!-- Add the appropriate id to this div -->
+            <a href="#" class="fa fa-facebook"></a>
+            <a href="#" class="fa fa-twitter"></a>
+            <a href="#" class="fa fa-linkedin"></a>
+            <a href="#" class="fa fa-instagram"></a>
+        </div>
+    </div>
+    <!-- Fill your code for container block and results -->
+
+    <div id = "container" class = "container">
+        
+    <div id = "header" class = "border-bottom py-4">
+        <h3 id = "subheading">Register for a Mobile Service</h3>
+    </div>
+    
+    <form id = "form1" onsubmit = "return ServiceRegistration()" class = "form-horizontal">
+        
+        <label for = "customerName">Customer Name</label>
+        <input id = "customerName" class = "form-control" type = "text" placeholder="Enter Your Name" required><br>
+        
+        <label for = "contactNumber">Contact Number</label>
+        <input id = "contactNumber" class = "form-control"  type = "tel" placeholder="Enter Your Contact Number" required><br>
+        
+        <label for = "email">E-Mail ID</label>
+        <input id = "email" class = "form-control"  type = "email" placeholder="Enter Your E-Mail ID" required><br>
+        
+        <label for = "dateOfPurchase">Date of Purchase</label>
+        <input id = "dateOfPurchase" class = "form-control"  type = "date" required><br>
+        
+        <label for = "mobileBrand">Mobile Brand</label>
+        <input id = "mobileBrand" class = "form-control"  type = "text" list = "brandNames"><br>
+        <datalist id = "brandNames">
+            <option value = "Apple IPhone">
+            <option value = "Asus">
+            <option value = "Google Pixel">
+            <option value = "Samsung">
+            <option value = "Huawei">
+        </datalist>
+        
+        <div  class = "checkbox-inline">
+            <label for = "checkbox">Service(s) Required</label>
+            <input type = "checkbox" name = "services" id = "panel" value = "panel" checked>
+            <label for = "panel">Back Panel Replacement</label>
+            <input type = "checkbox" name = "services" id = "display" value = "display">
+            <label for = "display">Display Replacement</label>
+            <input type = "checkbox" name = "services" id = "battery" value = "battery">
+            <label for = "battery">Battery Replacement</label>
+            <input type = "checkbox" name = "services" id = "motherboard" value = "motherboard">
+            <label for = "motherboard">MotherBoard issues</label>
+        </div>
+        
+        <input id = "submit" type = "submit" class = "btn btn-success btn-lg btn-block" value = "Register">
+        
+        </form>
+        </div>
+   
+    <div id = "result1" class = "alert alert-success">
+        
+    </div>
+    
+    <div id = "result2" class = "alert alert-info">
+        
+    </div>
+
+    <script src="script.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+Contact.js
+
+import React from 'react';
+import './style.css';
+class Contact extends React.Component {
+  render() {
+    return (<h1>Contact Component</h1>);
+  }
+}
+export default Contact;
+
+======
+
+App.js
+
+
+import React, { Component } from 'react';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom'
+import Home from './Home.js';
+import About from './About.js';
+import Contact from './Contact.js';
+import './style.css';
+class App extends Component {
+  render() {
+    return (
+      <div>
+        <h1>WeHost</h1>
+        <ul>
+          <li><Link to="/" >Home</Link></li>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/contact">Contact</Link></li>
+        </ul>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/contact' element={<Contact />} />
+          <Route path='/about' element={<About />} />
+        </Routes>
+      </div>
+    );
+  }
+}
+export default App;
+
+
+===========
+
+About.js
+
+import React from 'react';
+import './style.css';
+
+class About extends React.Component {
+  render() {
+    return (<h1>About Component</h1>)
+  }
+}
+export default About;
+
+
+===========
+
+style.css
+
+h1 {
+  text-align: center;
+  color: #ff5733;
+}
+
+nav {
+  background-color: #8d4004;
+  text-align: center;
+  padding: 20px;
+}
+
+body {
+  background-color: #daf7a6;
+}
+
+
+=========
+
+index.js
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
+import App from './App';
+
+
+ReactDOM.render(<Router> <App /> </Router>, document.getElementById('root'))
+
+
+=====
+Home.js
+
+import React from 'react';
+import './style.css';
+class Home extends React.Component {
+  render() {
+    return (<h1>Home Component</h1>)
+  }
+}
+export default Home;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React,{Component} from 'react';
+
+const styles={
+    // Implement styles here
+
+}
+
+//The following style can be applied to form element in order to match the given screenshot style={{marginLeft:"25px", color:"#ffd700",fontWeight:"bold"}}
+//only styles given in the description will be taken for evaluation.
+class Admission extends Component {
+    
+    constructor(props)
+    {
+        super(props);
+        this.state = {
+            message : ""
+        };
+    }
+    
+    // clickHandler = (e)=>{
+        // this.setState({message:`${e.}`});
+    // };
+    
+      render(){
+    
+            return (<div id = "display1" style = {{height:"30px", width:"auto", backgroundColor:"#d3eaf1", padding:"3px", color:"red", fontWeight:"bolder"}}>
+            <form>
+                    <div>
+                        <h3 style = {{color:"#ffffff", height:"50px", padding:"10px", marginLeft:"5px", backgroundColor:"#81807e"}}>Admission Enquiry</h3>
+                    </div>
+                    <div>
+                        <label for = "name">Name</label>
+                        <input type = "text" id = "name"></input>
+                    </div>
+                    <div>
+                        <label for = "email">Email Id</label>
+                        <input type = "text" id = "email"></input>
+                    </div>
+                    <div>
+                        <label for = "phoneno">Phone Number</label>
+                        <input type = "text" id = "phoneno"></input>
+                    </div>
+                    <div>
+                        <label for = "stat">Province</label>
+                        <input type = "text" id = "stat"></input>
+                    </div>
+                    <div>
+                        <label for = "city">City</label>
+                        <input type = "text" id = "city"></input>
+                    </div>
+                    <div>
+                        <label for = "cut">Cut-Off</label>
+                        <input type = "text" id = "cut"></input>
+                    </div>
+                    <div>
+                        <label for = "program">Select Programme</label>
+                        <input type = "dropdown" id = "program"></input>
+                    </div>
+                    <div>
+                        <label for = "ugpg">Select Course</label>
+                        <input type = "dropdown" id = "ugpg"></input>
+                    </div>
+                    <div>
+                        <input type = "checkbox" id = "confirm"></input>
+                        <label for = "confirm">I agree to receive information regarding my admission status</label>
+                    </div>
+                    <div>
+                        <button id = "click" type = "button" style = {{backgroundColor:"#00ffff", height:"30px", textAlign:"center", width:"125px"}}>Apply Now</button>
+                    </div>
+                </form>
+                </div>);
+        }
+    }
+    
+    export default Admission;
+
+
+
